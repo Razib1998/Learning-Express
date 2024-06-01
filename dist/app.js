@@ -35,11 +35,38 @@ const logger = (req, res, next) => {
     console.log(req.url, req.method, req.hostname);
     next();
 };
-app.get("/", logger, (req, res) => {
-    res.send("Hello world !");
+app.get("/", logger, (req, res, next) => {
+    try {
+        res.send("Hello World");
+    }
+    catch (error) {
+        next(error);
+        // console.log(err);
+        // res.status(400).json({
+        //   success: false,
+        //   message: "Failed to load data",
+        //});
+    }
 });
 app.post("/", logger, (req, res) => {
     //   console.log(req.body);
     res.send("got Data");
+});
+// Route Not found error handling..
+app.all("*", (req, res) => {
+    res.status(400).json({
+        success: false,
+        message: "Route not defined",
+    });
+});
+// Global error handler
+app.use((error, req, res, next) => {
+    console.log(error);
+    if (error) {
+        res.status(400).json({
+            success: false,
+            message: "Something went Wrong",
+        });
+    }
 });
 exports.default = app;
